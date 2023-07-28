@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+env:
+  rick: ${{ vars.RICK }}
 permissions:
   contents: write
 jobs:
@@ -10,6 +12,8 @@ jobs:
     concurrency: ci-${{ github.ref }}
     runs-on: ubuntu-latest
     environment: ${{ vars.ENVIRONMENT_STAGE }}
+    env:
+      NUXT_APP_BASE_URL: /fazendinha/
     strategy:
       matrix:
         node-version: [18]
@@ -22,17 +26,21 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Use Variables
+        run: |
+          echo "nuxt app base url : $NUXT_APP_BASE_URL"
+          echo "rick : $rick"
+          echo "variable from shell environment : $env_var"
+        env:
+          NUXT_APP_BASE_URL: '/fazendinha/'
+
+
       - name: Install & Generate 🔧
         run: |
           npm install
           npm run generate
-          echo $NUXT_APP_BASE_URL
-          echo $RICK
-          echo $MORTY
         env:
           NUXT_APP_BASE_URL: ${{ vars.NUXT_APP_BASE_URL  }}
-          RICK: ${{ vars.RICK }}
-          MORTY: 'MORTY'
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
